@@ -48,7 +48,7 @@ echo date("d-m-y H:i:s ", time()) . $_SERVER['REMOTE_ADDR'];
 				}
 				while (!$sql_result);
 				if (($row = mysqli_fetch_row($sql_result)) && time()-$last_check<60*9) {			// Если нашлись горячие темы, создаем пост.
-					$html_topic = str_get_html(curl('http://4pda.ru'.$url));	// Качаем страничку с темой
+					$html_topic = str_get_html(curl('http:'.$url));	// Качаем страничку с темой
 					$image = $html_topic->find('.postcolor img.attach, .postcolor img.linked-image', 0);	// Первое уменьшенное изображение
 					if ($image == null) $image = $html_topic->find('.attach', 0);	// либо первый аттач
 					if ($image == null) $image = $html_topic->find('.linked-image', 0);	// безысходность
@@ -60,7 +60,7 @@ echo date("d-m-y H:i:s ", time()) . $_SERVER['REMOTE_ADDR'];
 					do ; while (!mysqli_query($mysqli, "UPDATE latest SET url = '" . $url . "'"));
 					$method_str = 'wall.post?owner_id=-67811785&message='.urlencode('[Горячее] "'.
 					htmlspecialchars_decode($row[1]).'". За 5 минут было оставлено '.$row[2].' сообщений. Теперь их '.$answers.
-					'. ').'&attachments='.$photo.urlencode('http://4pda.ru'.$url.'&st='.($answers-$row[2])).'&from_group=1&signed=0&friends_only=0';
+					'. ').'&attachments='.$photo.urlencode('http:'.$url.'&st='.($answers-$row[2])).'&from_group=1&signed=0&friends_only=0';
 					$api_result = api($method_str);
 					if (!$api_result) var_dump("apiresult==null; $method_str");
 					else var_dump($api_result);						// если запостилась новость
@@ -80,7 +80,7 @@ echo date("d-m-y H:i:s ", time()) . $_SERVER['REMOTE_ADDR'];
 	if ($sql_result != null) {
 		while ($row = mysqli_fetch_row($sql_result)) {	
 			$html_topic = str_get_html(curl("http://4pda.ru/forum/index.php?showtopic=".$row[0]."&st=99999999"));// Качаем последнюю страничку с темой
-			$last_date = strtotime(str_replace(mb_convert_encoding('Сегодня', 'Windows-1251', 'utf-8'), date('d.m.Y'), $html_topic->find('*[style="float: left;"] .postdetails', -1)->plaintext)); // Unixtime последнего сообщения			
+			$last_date = strtotime(str_replace(mb_convert_encoding('Сегодня', 'Windows-1251', 'utf-8'), date('d.m.Y'), $html_topic->find('.row2 text', -1)->plaintext)); // Unixtime последнего сообщения
 			if ($last_date > $row[1]) {				
 				$message = $html_topic->find('.postcolor', -1);	// Последнее сообщение
 				$image = $html_topic->find('.linked-image, img.attach', 0);	// Первое  изображение
